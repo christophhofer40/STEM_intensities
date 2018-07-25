@@ -15,6 +15,10 @@ public class Calculate_Intensities implements PlugIn
 {
     
     double radius=5;
+    double radius_angstrom=0.5;
+    double scale=-1;//no scale
+    int imheight;
+    double fov=-1;
     Point[] points;
     ImagePlus imp;
     RoiManager roim;
@@ -24,7 +28,7 @@ public class Calculate_Intensities implements PlugIn
     {
             
             imp = IJ.getImage(); 
-            int imheight=imp.getHeight();
+            imheight=imp.getHeight();
             Roi roi=imp.getRoi();
             if (roi==null || roi.getType()!=Roi.POINT)
             {
@@ -36,11 +40,11 @@ public class Calculate_Intensities implements PlugIn
             
             Calibration cal = imp.getCalibration();
             String unit = cal.getUnit();
-            double scale = getScale(unit);
+            scale = getScale(unit);
             if (scale!=-1)
             {
-                double fov=cal.getX(imheight);
-                radius=imheight/(fov*scale);
+                fov=cal.getX(imheight);
+                radius=radius_angstrom*imheight/(fov*scale);
             }
             
             if(DoDialog())
@@ -79,12 +83,28 @@ public class Calculate_Intensities implements PlugIn
             NonBlockingGenericDialog gd = new NonBlockingGenericDialog("Radius");
             gd.setSmartRecording(true);
             gd.addMessage("choose radius for roi...");
-            gd.addNumericField("Radius", radius, 2);
+            if (scale!=-1)
+            {
+                gd.addNumericField("Radius in Angstrom", radius_angstrom, 2);   
+            }
+            else
+            {
+                gd.addNumericField("Radius in Pixel", radius, 2);
+            }
             gd.addCheckbox("accept radius", false);
             OvalRoi oroi=new OvalRoi(points[0].x-(int)radius/2,points[0].y-(int)radius/2,radius,radius);
             imp.setRoi(oroi);
             gd.showDialog();
-            radius=gd.getNextNumber();
+            if(scale!=-1)
+            {
+                radius_angstrom=gd.getNextNumber();
+                radius=radius_angstrom*imheight/(fov*scale);
+                
+            }
+            else
+            {
+                radius=gd.getNextNumber();
+            }
             baccepted=gd.getNextBoolean();
             
             if(gd.wasCanceled())
