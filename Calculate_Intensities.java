@@ -15,7 +15,7 @@ public class Calculate_Intensities implements PlugIn
 {
     
     double radius=5;
-    double radius_angstrom=0.5;
+    double radius_angstrom=0.7;
     double scale=-1;//no scale
     int imheight;
     double fov=-1;
@@ -69,6 +69,7 @@ public class Calculate_Intensities implements PlugIn
             }
             double mean=calculateMean(meanarray);
             double std=calculateStandardDeviation(meanarray);
+            IJ.log("Number of atoms found:\t"+len);
             IJ.log("Mean of atom intensities:\n"+mean);
             IJ.log("Standard deviation of means:\n"+std);
             imp.setRoi(roi);
